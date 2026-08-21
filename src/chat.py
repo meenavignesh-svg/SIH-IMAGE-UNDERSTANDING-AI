@@ -1,33 +1,47 @@
-from src.vision import get_image_description, answer_about_image
+from src.vision import generate_caption, answer_question, get_scene_summary
 from PIL import Image
 
-class ConversationManager:
+class Drishti:
+    """
+    Main conversation handler for the image understanding chatbot.
+    Named Drishti (vision/sight).
+    """
+
     def __init__(self):
         self.history = []
         self.image = None
-        self.base_caption = None
+        self.scene_info = None
 
-    def set_image(self, image: Image.Image):
+    def load_image(self, image: Image.Image):
         self.image = image
         self.history = []
-        # get a basic description once when image is uploaded
-        self.base_caption = get_image_description(image)
-        self.history.append({
-            "role": "assistant",
-            "content": f"I can see the image. Here's a quick description: {self.base_caption}"
-        })
+        self.scene_info = get_scene_summary(image)
+
+        intro = (
+            f"I have analyzed the image.\n\n"
+            f"**What I see:** {self.scene_info['caption']}\n\n"
+            f"You can ask me questions about it."
+        )
+        self.history.append({"role": "assistant", "content": intro})
 
     def ask(self, question: str) -> str:
         if self.image is None:
-            return "Please upload an image first."
+            return "Please upload an image first so I can look at it."
 
-        # simple context awareness
-        lower_q = question.lower().strip()
+        q = question.lower().strip()
 
-        if any(word in lower_q for word in ["describe", "what do you see", "what's in the image", "caption"]):
-            answer = self.base_caption
+        # handle common patterns better
+        if any(x in q for x in ["describe", "what do you see", "what's in the image", "what is in the image", "caption", "tell me about the image"]):
+            answer = self.scene_info["caption"]
+
+        elif any(x in q for x in ["hello", "hi", "hey"]):
+            answer = "Hello! I am Drishti. Upload an image and ask me anything about it."
+
+        elif "who are you" in q or "your name" in q:
+            answer = "I am Drishti, an image understanding assistant built for Smart India Hackathon."
+
         else:
-            answer = answer_about_image(self.image, question)
+            answer = answer_question(self.image, question)
 
         self.history.append({"role": "user", "content": question})
         self.history.append({"role": "assistant", "content": answer})
@@ -37,7 +51,7 @@ class ConversationManager:
     def get_history(self):
         return self.history
 
-    def clear(self):
+    def reset(self):
         self.history = []
         self.image = None
-        self.base_caption = None
+        self.scene_info = None
