@@ -1,46 +1,64 @@
-# SIH Image Understanding AI
+# Drishti – Conversational Image Understanding AI
 
-Conversational Image Recognition Chatbot  
-Smart India Hackathon 2024 – Problem Statement SIH1604  
-Organization: Bharat Electronics Limited (BEL)
-
----
-
-### What this does
-
-Upload any image → Ask questions about it in normal English → Get accurate answers.
-
-The system detects objects, understands the scene, and maintains a proper multi-turn conversation.
+**Smart India Hackathon 2024**  
+**Problem Statement:** SIH1604 – Conversational Image Recognition Chatbot  
+**Organization:** Bharat Electronics Limited (BEL)
 
 ---
 
-### Features
+### Overview
 
-- Image upload & preview
-- Object detection + scene understanding
-- Multi-turn conversation memory
-- Natural language responses
-- Clean Streamlit interface
+Drishti is a conversational AI system that can understand images and answer questions about them in natural language.
+
+Upload any image → Ask questions → Get meaningful answers.
+
+---
+
+### Key Features
+
+- Image understanding using Vision-Language model
+- Multi-turn conversation support
+- Natural language question answering about visual content
+- Clean and focused user interface
+- Built specifically for SIH demonstration
 
 ---
 
 ### Tech Stack
 
-- Python 3.10+
-- Streamlit (frontend)
-- Transformers + PIL
-- Open-source vision-language models
+| Component            | Technology                          |
+|----------------------|-------------------------------------|
+| Frontend             | Streamlit                           |
+| Vision Model         | BLIP (Salesforce)                   |
+| Image Processing     | Pillow                              |
+| Language             | Python 3.10+                        |
 
 ---
 
-### How to run locally
+### Project Structure
+
+```
+├── app.py                  # Main application
+├── requirements.txt
+├── README.md
+├── .gitignore
+└── src/
+    ├── __init__.py
+    ├── utils.py            # Image helpers
+    ├── vision.py           # Image captioning + VQA
+    └── chat.py             # Conversation manager (Drishti)
+```
+
+---
+
+### How to Run
 
 ```bash
 git clone https://github.com/meenavignesh-svg/SIH-IMAGE-UNDERSTANDING-AI.git
 cd SIH-IMAGE-UNDERSTANDING-AI
 
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+source venv/bin/activate          # Windows: venv\Scripts\activate
 
 pip install -r requirements.txt
 
@@ -49,28 +67,23 @@ streamlit run app.py
 
 ---
 
-### Project Structure
+### Example Interaction
 
-```
-├── app.py                  # Main Streamlit app
-├── requirements.txt
-├── README.md
-├── src/
-│   ├── __init__.py
-│   ├── vision.py           # Image understanding logic
-│   ├── chat.py             # Conversation handling
-│   └── utils.py            # Helper functions
-├── assets/                 # Sample images (optional)
-└── .gitignore
-```
+1. Upload an image of a street or room
+2. Ask: "What do you see in the image?"
+3. Follow up: "How many people are there?"
+4. Ask: "What is the main object?"
 
 ---
 
-### Notes
+### Notes for Jury
 
-This is a working prototype built for SIH 2024.  
-Focus is on clean demonstration of core functionality rather than production hardening.
+- This is a focused prototype built for SIH 2024.
+- Core pipeline (Image → Understanding → Conversation) is fully working.
+- Model used is open-source and runs locally.
+- Architecture is modular so stronger models can be swapped in easily.
 
 ---
 
-Built for Smart India Hackathon 2024
+Built for Smart India Hackathon 2024  
+Team Project – SIH1604
