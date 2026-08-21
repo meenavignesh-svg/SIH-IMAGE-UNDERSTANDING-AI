@@ -46,17 +46,17 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("**Example questions you can try:**")
     st.markdown("""
-    - What do you see in the image?
-    - How many people are there?
-    - What is the main object?
-    - Describe the scene
-    - What colors are dominant?
+- What do you see in the image?
+- How many people are there?
+- What is the main object?
+- Describe the scene
+- What colors are dominant?
     """)
 
     st.markdown("---")
     st.markdown("**SIH 2024**  
-    Problem Statement: SIH1604  
-    Organization: Bharat Electronics Limited")
+Problem Statement: SIH1604  
+Organization: Bharat Electronics Limited")
 
 # ---------- Main UI ----------
 st.title("Drishti")
@@ -88,13 +88,6 @@ else:
         user_input = st.chat_input("Ask something about the image...")
 
         if user_input:
-            # show user message immediately
-            with chat_container:
-                with st.chat_message("user"):
-                    st.markdown(user_input)
-
-            # get response
             with st.spinner("Analyzing..."):
                 response = st.session_state.bot.ask(user_input)
-
             st.rerun()
