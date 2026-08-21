@@ -45,18 +45,20 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown("**Example questions you can try:**")
-    st.markdown("""
-- What do you see in the image?
-- How many people are there?
-- What is the main object?
-- Describe the scene
-- What colors are dominant?
-    """)
+    st.markdown(
+        "- What do you see in the image?\n"
+        "- How many people are there?\n"
+        "- What is the main object?\n"
+        "- Describe the scene\n"
+        "- What colors are dominant?"
+    )
 
     st.markdown("---")
-    st.markdown("**SIH 2026**  
-Problem Statement: SIH1604  
-Organization: Bharat Electronics Limited")
+    st.markdown(
+        "**SIH 2026**\n\n"
+        "Problem Statement: SIH1604\n\n"
+        "Organization: Bharat Electronics Limited"
+    )
 
 # ---------- Main UI ----------
 st.title("Drishti")
@@ -77,14 +79,12 @@ else:
     with col_chat:
         st.subheader("Conversation")
 
-        # display chat history
         chat_container = st.container(height=420)
         with chat_container:
             for msg in st.session_state.bot.get_history():
                 with st.chat_message(msg["role"]):
                     st.markdown(msg["content"])
 
-        # user input
         user_input = st.chat_input("Ask something about the image...")
 
         if user_input:
