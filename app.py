@@ -54,7 +54,7 @@ with st.sidebar:
     """)
 
     st.markdown("---")
-    st.markdown("**SIH 2024**  
+    st.markdown("**SIH 2026**  
 Problem Statement: SIH1604  
 Organization: Bharat Electronics Limited")
 
