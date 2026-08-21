@@ -1,68 +1,100 @@
 import streamlit as st
-from PIL import Image
 from src.utils import load_image, resize_for_display
-from src.chat import ConversationManager
+from src.chat import Drishti
 
 st.set_page_config(
-    page_title="Image Understanding AI",
-    page_icon="🖼️",
-    layout="centered"
+    page_title="Drishti | Image Understanding AI",
+    page_icon="👁️",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# keep conversation state across reruns
-if "chat" not in st.session_state:
-    st.session_state.chat = ConversationManager()
+# ---------- Session State ----------
+if "bot" not in st.session_state:
+    st.session_state.bot = Drishti()
 
-st.title("Conversational Image Understanding")
-st.caption("Upload an image and ask questions about it")
+if "image_loaded" not in st.session_state:
+    st.session_state.image_loaded = False
 
-# ---- Sidebar ----
+# ---------- Sidebar ----------
 with st.sidebar:
-    st.header("Controls")
-    uploaded = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png", "webp"])
+    st.title("Drishti")
+    st.caption("Conversational Image Understanding")
 
-    if st.button("Clear conversation"):
-        st.session_state.chat.clear()
+    st.markdown("---")
+
+    uploaded_file = st.file_uploader(
+        "Upload an image",
+        type=["jpg", "jpeg", "png", "webp"],
+        help="Supports JPG, PNG and WebP"
+    )
+
+    if uploaded_file is not None:
+        image = load_image(uploaded_file)
+        if image is not None and not st.session_state.image_loaded:
+            st.session_state.bot.load_image(image)
+            st.session_state.image_loaded = True
+            st.session_state.current_image = image
+
+    if st.button("Clear & Reset", use_container_width=True):
+        st.session_state.bot.reset()
+        st.session_state.image_loaded = False
+        if "current_image" in st.session_state:
+            del st.session_state.current_image
         st.rerun()
 
     st.markdown("---")
-    st.markdown("**SIH 2024 – SIH1604**")
-    st.markdown("Bharat Electronics Limited")
+    st.markdown("**Example questions you can try:**")
+    st.markdown("""
+    - What do you see in the image?
+    - How many people are there?
+    - What is the main object?
+    - Describe the scene
+    - What colors are dominant?
+    """)
 
-# ---- Main area ----
-if uploaded is not None:
-    image = load_image(uploaded)
+    st.markdown("---")
+    st.markdown("**SIH 2024**  
+    Problem Statement: SIH1604  
+    Organization: Bharat Electronics Limited")
 
-    if image is not None:
-        # only set image if it's a new one
-        if st.session_state.chat.image is None:
-            st.session_state.chat.set_image(image)
+# ---------- Main UI ----------
+st.title("Drishti")
+st.markdown("##### Upload an image and have a conversation about it")
 
-        col1, col2 = st.columns([1, 1])
-
-        with col1:
-            st.image(resize_for_display(image), caption="Uploaded Image", use_container_width=True)
-
-        with col2:
-            st.subheader("Chat")
-
-            # show previous messages
-            for msg in st.session_state.chat.get_history():
-                with st.chat_message(msg["role"]):
-                    st.write(msg["content"])
-
-            # input box
-            user_q = st.chat_input("Ask something about the image...")
-
-            if user_q:
-                with st.chat_message("user"):
-                    st.write(user_q)
-
-                with st.chat_message("assistant"):
-                    with st.spinner("Thinking..."):
-                        response = st.session_state.chat.ask(user_q)
-                        st.write(response)
-
-                st.rerun()
+if not st.session_state.image_loaded:
+    st.info("Upload an image from the sidebar to begin.")
 else:
-    st.info("Upload an image from the sidebar to get started.")
+    col_img, col_chat = st.columns([1, 1.2], gap="large")
+
+    with col_img:
+        st.subheader("Image")
+        st.image(
+            resize_for_display(st.session_state.current_image, max_width=520),
+            use_container_width=True
+        )
+
+    with col_chat:
+        st.subheader("Conversation")
+
+        # display chat history
+        chat_container = st.container(height=420)
+        with chat_container:
+            for msg in st.session_state.bot.get_history():
+                with st.chat_message(msg["role"]):
+                    st.markdown(msg["content"])
+
+        # user input
+        user_input = st.chat_input("Ask something about the image...")
+
+        if user_input:
+            # show user message immediately
+            with chat_container:
+                with st.chat_message("user"):
+                    st.markdown(user_input)
+
+            # get response
+            with st.spinner("Analyzing..."):
+                response = st.session_state.bot.ask(user_input)
+
+            st.rerun()
