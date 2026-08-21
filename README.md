@@ -1,6 +1,6 @@
 # Drishti – Conversational Image Understanding AI
 
-**Smart India Hackathon 2024**  
+**Smart India Hackathon 2026**  
 **Problem Statement:** SIH1604 – Conversational Image Recognition Chatbot  
 **Organization:** Bharat Electronics Limited (BEL)
 
@@ -78,12 +78,12 @@ streamlit run app.py
 
 ### Notes for Jury
 
-- This is a focused prototype built for SIH 2024.
+- This is a focused prototype built for SIH 2026.
 - Core pipeline (Image → Understanding → Conversation) is fully working.
 - Model used is open-source and runs locally.
 - Architecture is modular so stronger models can be swapped in easily.
 
 ---
 
-Built for Smart India Hackathon 2024  
+Built for Smart India Hackathon 2026  
 Team Project – SIH1604
