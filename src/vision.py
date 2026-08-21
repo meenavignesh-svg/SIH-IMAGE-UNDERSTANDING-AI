@@ -2,50 +2,73 @@ from transformers import BlipProcessor, BlipForConditionalGeneration
 from PIL import Image
 import torch
 
-# loading once so it doesn't keep reloading on every run
 _processor = None
 _model = None
 
-def _load_model():
+def _get_model():
     global _processor, _model
     if _model is None:
-        print("Loading BLIP model... this might take a few seconds")
-        _processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
-        _model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
+        print("Loading vision model...")
+        _processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
+        _model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large")
         _model.eval()
     return _processor, _model
 
 
-def get_image_description(image: Image.Image) -> str:
-    """Generate a basic caption for the image."""
-    processor, model = _load_model()
-
+def generate_caption(image: Image.Image) -> str:
+    """Get a detailed caption of the image."""
+    processor, model = _get_model()
     inputs = processor(image, return_tensors="pt")
+
     with torch.no_grad():
-        out = model.generate(**inputs, max_length=50)
+        output = model.generate(**inputs, max_new_tokens=60, num_beams=3)
 
-    caption = processor.decode(out[0], skip_special_tokens=True)
-    return caption.strip()
+    caption = processor.decode(output[0], skip_special_tokens=True)
+    return caption.strip().capitalize()
 
 
-def answer_about_image(image: Image.Image, question: str) -> str:
+def answer_question(image: Image.Image, question: str) -> str:
     """
-    Very basic visual question answering using BLIP.
-    For better results later we can swap this with a stronger VLM.
+    Visual question answering.
+    We use a conditional generation approach with BLIP.
     """
-    processor, model = _load_model()
+    processor, model = _get_model()
 
-    # BLIP can do conditional generation with a question-like prompt
-    prompt = f"Question: {question} Answer:"
+    # better prompt format helps a bit
+    prompt = question.strip()
+    if not prompt.endswith("?"):
+        prompt += "?"
+
     inputs = processor(image, text=prompt, return_tensors="pt")
 
     with torch.no_grad():
-        out = model.generate(**inputs, max_length=60)
+        output = model.generate(
+            **inputs,
+            max_new_tokens=40,
+            num_beams=4,
+            early_stopping=True
+        )
 
-    answer = processor.decode(out[0], skip_special_tokens=True)
+    answer = processor.decode(output[0], skip_special_tokens=True)
 
-    # clean up the output a bit
-    if "Answer:" in answer:
-        answer = answer.split("Answer:")[-1].strip()
+    # clean common artifacts
+    answer = answer.replace(prompt, "").strip()
+    if answer.lower().startswith("answer:"):
+        answer = answer[7:].strip()
 
-    return answer if answer else "I'm not sure about that."
+    if not answer or len(answer) < 2:
+        return "I am not completely sure about that from the image."
+
+    return answer.capitalize()
+
+
+def get_scene_summary(image: Image.Image) -> dict:
+    """
+    Returns a structured summary that we can use in chat.
+    """
+    caption = generate_caption(image)
+
+    return {
+        "caption": caption,
+        "raw_description": caption
+    }
